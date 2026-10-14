@@ -20,8 +20,6 @@ jobs:
           node-version: 24.14.0
           cache: npm
       - run: npm ci
-      - name: Install Chrome runtime dependencies
-        run: npx puppeteer browsers install chrome --install-deps
       - name: Run the existing tracking gate
         shell: bash
         run: |
