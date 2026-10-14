@@ -1,0 +1,46 @@
+name: Antimeridian tracking QA
+
+on:
+  push:
+    branches: [codex/qa-antimeridian-tracking]
+
+permissions:
+  contents: read
+
+jobs:
+  track:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020
+        with:
+          node-version: 24.14.0
+          cache: npm
+      - run: npm ci
+      - name: Install Chrome runtime dependencies
+        run: npx puppeteer browsers install chrome --install-deps
+      - name: Run the existing tracking gate
+        shell: bash
+        run: |
+          npm run dev -- --host 127.0.0.1 > tracking-dev.log 2>&1 &
+          server_pid=$!
+          trap 'kill "$server_pid" 2>/dev/null || true' EXIT
+          for attempt in $(seq 1 60); do
+            curl -fsS http://127.0.0.1:4173/ -o /dev/null && break
+            sleep 1
+          done
+          npm run test:track -- --url http://127.0.0.1:4173 --offline-imagery 2>&1 | tee tracking-qa.log
+      - name: Upload evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: antimeridian-tracking-evidence
+          path: |
+            tracking-dev.log
+            tracking-qa.log
+            qa-artifacts/
+          if-no-files-found: ignore
+          retention-days: 3
