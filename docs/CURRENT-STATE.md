@@ -99,6 +99,14 @@ lists at 25 rows by default. Voice offers the same queries next to its app
 actions: the session lists them, and the browser runs them through the same
 catalog, loaded on first use. See [tools and the MCP server](TOOLS.md).
 
+Fire-perimeter queries test polygon interiors and holes on continuous unwrapped
+longitudes, matching the short-edge convention used for boundary intersections.
+An outline crossing ±180° contains nearby boxes and radius areas without also
+containing their counterparts near Greenwich. Returned perimeter coordinates
+use a circular mean for longitude, including multipart outlines. Regression
+coverage lives in `src/tools/area.test.mjs` and
+`src/tools/queries/environment.test.mjs`.
+
 ## Cyber HUD — September 30, 2026
 
 Display > HUD > Layout includes Cyber, also available through the HUD voice

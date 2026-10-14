@@ -1,5 +1,9 @@
 # Changelog
 
+- Fire-perimeter queries handle outlines and holes crossing the antimeridian:
+  areas enclosed near ±180° are included, areas at the opposite meridian are
+  excluded, and returned perimeter coordinates stay near the dateline.
+
 - Snow flakes sway within a fixed range instead of drifting sideways faster the
   longer the app runs; the Wind setting still scales the sway.
 
